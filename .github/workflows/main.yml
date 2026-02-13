@@ -1,0 +1,59 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Grant Execute Permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'zulu'
+          cache: gradle
+
+      - name: Build Jar
+        run: ./gradlew build -x test
+
+      - name: Select Release Jar
+        id: release_jar
+        shell: bash
+        run: |
+          shopt -s nullglob
+          jars=(build/libs/*.jar)
+          release_jars=()
+          for jar in "${jars[@]}"; do
+            name="$(basename "$jar")"
+            if [[ "$name" == *-sources.jar || "$name" == *-dev.jar || "$name" == *-javadoc.jar ]]; then
+              continue
+            fi
+            release_jars+=("$jar")
+          done
+
+          if [[ "${#release_jars[@]}" -ne 1 ]]; then
+            echo "Expected exactly one release jar, found ${#release_jars[@]}:"
+            printf ' - %s\n' "${release_jars[@]}"
+            exit 1
+          fi
+
+          echo "jar_path=${release_jars[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.release_jar.outputs.jar_path }}
+          body_path: CHANGELOG.md
