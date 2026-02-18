@@ -1,5 +1,6 @@
 # Changelog
 
+<<<<<<< HEAD
 ## [0.1.3] - 2026-02-15
 
 ### Changed
@@ -25,6 +26,8 @@
 - Fixed time-is-money reward handling to read runtime values from config and send rewards/messages consistently.
 - Fixed command activity tracking so command usage still counts as player activity even when combat tagging is disabled.
 
+=======
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
 ## [0.1.0] - 2026-02-13
 
 ### Added

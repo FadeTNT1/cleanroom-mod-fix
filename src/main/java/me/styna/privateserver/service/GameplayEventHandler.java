@@ -1,7 +1,10 @@
 package me.styna.privateserver.service;
 
 import me.styna.privateserver.PrivateServer;
+<<<<<<< HEAD
 import me.styna.privateserver.config.model.EconomyConfig;
+=======
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
 import me.styna.privateserver.effect.ModPotions;
 import me.styna.privateserver.util.TextUtil;
 import net.minecraft.command.ICommand;
@@ -31,7 +34,14 @@ import java.util.UUID;
 public class GameplayEventHandler {
 
     private static final long TICKS_PER_SECOND = 20L;
+<<<<<<< HEAD
     private static final String DEFAULT_PLAYTIME_REWARD_MESSAGE = "&aYou've received &e%amount% &afor playing on the server!";
+=======
+    private static final long PLAYTIME_REWARD_INTERVAL_TICKS = 30L * 60L * TICKS_PER_SECOND;
+    private static final long AFK_TIMEOUT_TICKS = 5L * 60L * TICKS_PER_SECOND;
+    private static final double PLAYTIME_REWARD_AMOUNT = 150.0D;
+    private static final String PLAYTIME_REWARD_MESSAGE = "(default) you've received %s for playing on the server!";
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
     private static final double MEMORY_WARN_THRESHOLD_RATIO = 0.95D;
     private static final long MEMORY_WARN_COOLDOWN_TICKS = 5L * 60L * TICKS_PER_SECOND;
     private static final double ACTIVITY_POSITION_DELTA_SQ = 0.0001D;
@@ -88,14 +98,23 @@ public class GameplayEventHandler {
 
     @SubscribeEvent
     public void onCommand(CommandEvent event) {
+<<<<<<< HEAD
+=======
+        if (!mod.getConfigService().getMainConfig().modules.combat || !mod.getConfigService().getCombatConfig().enabled) {
+            return;
+        }
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
         if (!(event.getSender() instanceof EntityPlayerMP)) {
             return;
         }
         EntityPlayerMP player = (EntityPlayerMP) event.getSender();
         markActivity(player);
+<<<<<<< HEAD
         if (!mod.getConfigService().getMainConfig().modules.combat || !mod.getConfigService().getCombatConfig().enabled) {
             return;
         }
+=======
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
         if (!mod.getCombatTagService().isTagged(player.getUniqueID(), serverTick)) {
             return;
         }
@@ -129,7 +148,10 @@ public class GameplayEventHandler {
 
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+<<<<<<< HEAD
         activityByPlayer.remove(event.player.getUniqueID());
+=======
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
         if (mod.getConfigService().getChatConfig().relayJoinLeave) {
             mod.getDiscordRelayService().relay("leave", event.player.getName() + " left the server");
         }
@@ -229,6 +251,7 @@ public class GameplayEventHandler {
         if (!mod.getEconomyService().isEnabled()) {
             return;
         }
+<<<<<<< HEAD
         EconomyConfig economyConfig = mod.getConfigService().getEconomyConfig();
         if (!economyConfig.playtimeRewardEnabled) {
             return;
@@ -242,10 +265,14 @@ public class GameplayEventHandler {
         long rewardIntervalTicks = Math.max(1L, economyConfig.playtimeRewardIntervalMinutes) * 60L * TICKS_PER_SECOND;
         double rewardAmount = Math.max(0.0D, economyConfig.playtimeRewardAmount);
         if (rewardAmount <= 0.0D) {
+=======
+        if ((serverTick - state.lastActivityTick) > AFK_TIMEOUT_TICKS) {
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
             return;
         }
 
         state.activeTicks += TICKS_PER_SECOND;
+<<<<<<< HEAD
         while (state.activeTicks >= rewardIntervalTicks) {
             state.activeTicks -= rewardIntervalTicks;
             mod.getEconomyService().deposit(player.getUniqueID(), player.getName(), rewardAmount);
@@ -282,6 +309,16 @@ public class GameplayEventHandler {
         return result;
     }
 
+=======
+        while (state.activeTicks >= PLAYTIME_REWARD_INTERVAL_TICKS) {
+            state.activeTicks -= PLAYTIME_REWARD_INTERVAL_TICKS;
+            mod.getEconomyService().deposit(player.getUniqueID(), player.getName(), PLAYTIME_REWARD_AMOUNT);
+            String amountText = "$" + String.format(Locale.US, "%.2f", PLAYTIME_REWARD_AMOUNT);
+            TextUtil.send(player, "&a" + PLAYTIME_REWARD_MESSAGE.replace("%s", "&e" + amountText + "&a"));
+        }
+    }
+
+>>>>>>> 293884e14fd113d3dc79e066dba0a1ad26810e84
     private void updateMovementActivity(EntityPlayerMP player, PlayerActivityState state) {
         if (!state.hasSnapshot) {
             state.lastActivityTick = serverTick;
